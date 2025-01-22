@@ -1,0 +1,27 @@
+#!/bin/sh
+
+while true; do
+    # Get RAM usage
+    ram=$(free -h | awk '/^Mem:/{print $3 "/" $2}')
+    
+    # Get CPU load
+    cpu=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
+    
+    # Get current time
+    time=$(date "+%d-%m-%Y %H:%M:%S " )
+    
+    # Get storage usage
+    storage=$(df -h / | awk 'NR==2{print $3 "/" $2}')
+
+    # Get battery percentage and status
+    BATTERY=$(cat /sys/class/power_supply/BAT0/capacity)
+    STATUS=$(cat /sys/class/power_supply/BAT0/status)
+
+    # Update the status bar
+    xsetroot -name "RAM: $ram | CPU: $cpu% | SSD: $storage | $BATTERY% ($STATUS) | $time"
+    
+    sleep 2
+done &
+
+exec firefox &
+exec dwm
